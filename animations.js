@@ -3,7 +3,9 @@
   var root = document.documentElement;
   try {
     if (/[?&]captura=1(&|$)/.test(location.search)) return;
-    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Con "reducir movimiento" solo se aplica fade (an-soft); ?animar=1 fuerza el movimiento completo.
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce && !/[?&]animar=1(&|$)/.test(location.search)) root.classList.add('an-soft');
     if (!('IntersectionObserver' in window)) return;
 
     var DUR = 700, STEP = 100;
@@ -76,7 +78,7 @@
 
     function settle(it) {
       var el = it.el;
-      el.classList.remove('an-r', 'an-s', 'an-in', 'an-nt');
+      el.classList.remove('an-r', 'an-s', 'an-in', 'an-nt', 'an-go');
       el.style.transitionDelay = '';
       if (it.card) {
         el.classList.add('an-card');
@@ -87,6 +89,8 @@
       }
     }
     function show(it) {
+      it.el.classList.add('an-go');
+      void it.el.offsetWidth; // fija el estado oculto antes de activar la transicion
       it.el.classList.add('an-in');
       setTimeout(function () { settle(it); }, (it.star ? 300 : DUR) + it.delay + 80);
     }
@@ -131,10 +135,10 @@
       }
     });
   } catch (err) {
-    root.classList.remove('an-on');
+    root.classList.remove('an-on', 'an-soft');
     arr0(document.querySelectorAll('.an-r,.an-s'));
   }
   function arr0(l) {
-    Array.prototype.forEach.call(l, function (e) { e.classList.remove('an-r', 'an-s', 'an-in'); e.style.transitionDelay = ''; });
+    Array.prototype.forEach.call(l, function (e) { e.classList.remove('an-r', 'an-s', 'an-in', 'an-go'); e.style.transitionDelay = ''; });
   }
 })();
